@@ -1,0 +1,99 @@
+<!-- UCLA's Graphics Example Code (Javascript and C++ translations available), by Garett Ridge for CS174a.
+index.html - The web page document containing the canvas (drawing surface), that launches your javascript files, and hides the vertex and fragment shader programs in some strings. //-->
+<!DOCTYPE html>
+<html>
+<head>  <meta charset="UTF-8"/>
+<script type="text/javascript" src="MV.js"                    ></script>  <!--  Javascript "include" files.  Any code in them gets executed as part of the page loading.  //-->
+<script type="text/javascript" src="tinywebgl-ucla.js"        ></script>
+<script type="text/javascript" src="example-displayables.js"  ></script>
+<script type="text/javascript" src="example-shapes.js"        ></script>
+<script type="text/javascript" src="example-shaders.js"       ></script>
+<script type="text/javascript" src="surfacesofrevolution.js"></script>
+<script type="text/javascript" src="subdivisionsphere.js"    ></script>
+<link rel="stylesheet" href="styles.css">
+<script type="text/javascript"> "use strict"  
+  window.onload = function init()           // ********************* OUR WHOLE PROGRAM'S ENTRY POINT ********************* 
+    {	
+      var main_canvas = new Canvas_Manager( "gl-canvas", Color( 0, 0, 0, 0 ) ),    // Make the master canvas manager.  Set your background color here too.
+          g_state = main_canvas.shared_scratchpad.graphics_state;
+
+          
+      shaders_in_use[ "Default"     ] = new Phong_or_Gouraud_Shader( g_state );    // Put all our shader programs in the GPU.
+      shaders_in_use[ "Demo_Shader" ] = new Funny_Shader           ( g_state );
+      
+      // IMPORTANT: -- You have to include all your new images in here:
+      // Put all our texture images in the GPU.
+      texture_filenames_to_load.push( "text.png" );  
+      texture_filenames_to_load.push( "boo1.png");  
+      texture_filenames_to_load.push( "boo2.png");  
+      texture_filenames_to_load.push( "boo3.png"); 
+      texture_filenames_to_load.push( "boo4.png");                          
+      texture_filenames_to_load.push( "shield.png");  
+      texture_filenames_to_load.push( "fire.jpg"); 
+      texture_filenames_to_load.push( "wood.jpg");
+
+      for( var i = 0; i < texture_filenames_to_load.length; i++ ) textures_in_use[ texture_filenames_to_load[i] ] = ( new Texture( texture_filenames_to_load[i], false ) );
+      
+      main_canvas.register_display_object( new Debug_Screen     ( main_canvas ) );  // We instantiate some of our custom "Animation" subclasses and register these displayable
+      main_canvas.register_display_object( new Example_Animation( main_canvas ) );  // objects to their master "Canvas_Manager" object -- which OpenGL calls upon every time a
+      main_canvas.register_display_object( new Example_Camera   ( main_canvas ) );  // draw / keyboard / mouse event happens.
+
+      // Added this code for Garrett's new shapes 
+      
+      //Uncomment to look at crazy stuff
+      //main_canvas.register_display_object( new Object_Collision_Scene( main_canvas ) );
+      //main_canvas.register_display_object( new Ground_Collision_Scene( main_canvas ) );
+      //main_canvas.register_display_object( new Surfaces_Tester  ( main_canvas ) );
+      //main_canvas.register_display_object( new Bee_Scene        ( main_canvas ) );
+      main_canvas.render();
+    }
+
+  window.requestAnimFrame = ( function()						// Use the correct browser's version of requestAnimationFrame() when queue-ing up re-display events. 
+    { return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+      function( callback, element) { window.setTimeout(callback, 1000/60);  };
+    })();
+</script>
+</head><body>
+<canvas id="gl-canvas" width="1225" height="700" style="background: url(space.jpg) ">
+</canvas>
+<audio id="rainbow_effect" src="rainbow.mp3" style="display: none;"></audio> 
+<audio id="explosion_effect" src="explosion.mp3" style="display: none;"></audio> 
+<audio id="invincible_effect" src="invincible.mp3" style="display: none;"></audio> 
+<audio id="ghost_effect" src="ghost.mp3" style="display: none;"></audio> 
+<audio id="interstellar_effect" src="interstellar.mp3" style="display: none;"></audio> 
+<audio id="apocalypse_effect" src="apocalypse.mp3" style="display: none;"></audio> 
+<div></div>
+
+<canvas id="text" width = "1000" height = "650"> 
+</canvas>
+<canvas id="title" width = "1200" height = "150"> 
+</canvas>
+<script>
+  var textcanvas = document.getElementById("text");
+
+  textcanvas.style.left = 520 + "px";
+  textcanvas.style.top = 440 + "px";
+</script> 
+
+
+<script>
+  var textcanvas = document.getElementById("title");
+
+  textcanvas.style.left =  200+ "px";
+  textcanvas.style.top = 70 + "px";
+</script> 
+
+<p>
+<div id="instructions">
+Welcome to Cube Runner! 
+<ul><li>Your goal is to navigate for as long as possible without hitting any cube objects. </li>
+  <li> There are four levels you must complete to beat the game. </li> 
+  <li> There are two powerups to look-out for: shields and stars. </li>
+  <li> Collecting a shield will protect you from one collision. </li> 
+  <li> Collecting a star will give you immunity from all collisions for 5 seconds. </li> 
+  <li> Use the arrow keys to navigate up, down, left, or right. </li> 
+  <li> Click the play button to start playing </li>
+</ul>
+		Good luck!
+</div></p></body>
+</html>

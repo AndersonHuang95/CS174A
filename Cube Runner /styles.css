@@ -1,0 +1,21 @@
+body {
+    position: relative;
+}
+ 
+#gl-canvas {
+	transition: background-image 2s ease-in;
+}
+
+#text {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
+
+#title {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
