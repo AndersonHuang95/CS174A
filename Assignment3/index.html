@@ -1,0 +1,51 @@
+<!DOCTYPE html> 
+<html> 
+	<head>
+		<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+		<title>CS174A Assignment 3</title>
+		<!-- Stylesheet would go here --> 
+
+		<!-- Scripts needed for WebGL --> 
+		<script src="gl-matrix.js" type="text/javascript"></script>
+		<script src="webgl-utils.js" type="text/javascript"></script>
+		<script src="initShaders.js" type="text/javascript"></script> 
+		<script src="textures.js" type="text/javascript"></script> 
+
+		<!-- Fragment shader program --> 
+
+		<script id="shader-fs" type="x-shader/x-fragment"> 
+			varying highp vec2 vTextureCoord;
+
+			uniform sampler2D uSampler;
+
+			void main(void) {
+				gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+			}
+		</script> 
+
+		<!-- Vertex shader program --> 
+
+		<script id="shader-vs" type="x-shader/x-vertex"> 
+			attribute vec3 aVertexPosition;
+			attribute vec2 aTextureCoord;
+
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			uniform mat4 uVMatrix; 
+
+			varying highp vec2 vTextureCoord;
+
+			void main(void) {
+				gl_Position = uPMatrix * uVMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+				vTextureCoord = aTextureCoord;
+			}
+		</script> 
+	</head>
+
+	<!-- Can set onload function here, but I am doing so in separate js file --> 
+	<body> 
+		<canvas id="glcanvas" width="1440" height="900"> 
+			Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
+		</canvas>
+	</body> 
+</html> 

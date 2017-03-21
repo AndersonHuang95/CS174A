@@ -1,0 +1,151 @@
+<!DOCTYPE html> 
+<html> 
+	<head>
+		<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+		<title>CS174A Assignment 2</title>
+		<!-- Stylesheet would go here --> 
+
+		<!-- Scripts needed for WebGL --> 
+		<script src="gl-matrix.js" type="text/javascript"></script>
+		<script src="webgl-utils.js" type="text/javascript"></script>
+		<script src="initShaders.js" type="text/javascript"></script>
+		<script src="shapes.js" type="text/javascript"></script>
+		<script src="solarsystem.js" type="text/javascript"></script> 
+
+		<!-- Fragment shader program --> 
+
+		<script id="shader-fs" type="x-shader/x-fragment"> 
+			// Precision determines how detailed coloring is 
+			uniform bool Phong; 
+
+			precision mediump float;
+
+			// varying lowp vec4 fColor; 
+			// Varying 
+			varying vec3 v_normal; 
+			varying vec3 v_surfaceToLight; 
+			varying vec3 v_surfaceToView; 
+			varying vec4 fColor; 
+
+			// Uniforms
+			uniform vec4 uf_ambientProduct, uf_diffuseProduct, uf_specularProduct; 
+			uniform float uf_shininess; 
+
+			void main(void) {
+				if (Phong) {
+					vec4 phongColor; 
+	   				vec3 normal = normalize(v_normal);
+	   				vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
+	   				vec3 surfaceToViewDirection = normalize(v_surfaceToView); 
+
+
+	   				vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection); 
+
+	   				// lighting properties 
+	   				vec4 ambient = uf_ambientProduct; 
+
+					float kd = max(dot(surfaceToLightDirection, normal), 0.0); 
+					vec4 diffuse = kd * uf_diffuseProduct; 
+
+					float ks = pow(max(dot(normal, halfVector), 0.0), uf_shininess); 
+					vec4 specular = ks * uf_specularProduct; 
+
+					if (dot(surfaceToLightDirection, normal) < 0.0) {
+						specular = vec4(0.0, 0.0, 0.0, 1.0); 
+					}
+
+					phongColor = ambient + diffuse + specular; 
+					phongColor.a = 1.0; 
+
+					gl_FragColor = phongColor; 
+				}
+				else {
+					gl_FragColor = fColor; 
+				}
+			}
+		</script> 
+
+		<!-- Vertex shader program --> 
+
+		<script id="shader-vs" type="x-shader/x-vertex"> 
+			uniform bool Gouraud; 
+
+			// attributes 
+			attribute vec3 aVertexPosition; 
+			attribute vec3 aNormalPosition; 
+
+			// varying 
+			varying vec4 fColor; 
+			varying vec3 v_normal; 
+			varying vec3 v_surfaceToLight;
+			varying vec3 v_surfaceToView;  
+
+			// uniforms 
+			uniform vec4 uv_ambientProduct, uv_diffuseProduct, uv_specularProduct; 
+			uniform mat4 uMVMatrix; 
+			uniform mat4 uVMatrix; 
+			uniform mat4 uPMatrix; 
+			uniform mat4 uMVInverseTranspose; 
+
+			uniform vec3 uLightPosition; 
+			uniform vec3 uViewPosition; 
+			uniform float uv_shininess; 
+
+
+			void main(void) {
+				// Code adapted from webglfundamentals.org 
+
+				gl_Position = uPMatrix * uVMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+
+				// Pass the normal to the fragment shader 
+				v_normal = mat3(uMVInverseTranspose) * aNormalPosition;
+
+				// compute the world position of the surface
+				vec3 surfaceWorldPosition = (uMVMatrix * vec4(aVertexPosition, 1.0)).xyz; 
+
+				// compute the vector of the surface to the light
+				// and pas it to the fragment shader 
+				v_surfaceToLight = (uVMatrix * vec4(uLightPosition, 1.0)).xyz - surfaceWorldPosition;
+
+				// compute the vector of the surface to the view/camera
+				// and pass it to the fragment shader (specular highlights)
+				v_surfaceToView = -surfaceWorldPosition;
+
+				if (Gouraud) {
+					// Calculate shading per vertex 
+
+					// normalize vectors 
+	   				vec3 normal = normalize(v_normal);
+	   				vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
+	   				vec3 surfaceToViewDirection = normalize(v_surfaceToView); 
+
+
+	   				vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection); 
+
+	   				// lighting properties 
+	   				vec4 ambient = uv_ambientProduct; 
+
+					float kd = max(dot(surfaceToLightDirection, normal), 0.0); 
+					vec4 diffuse = kd * uv_diffuseProduct; 
+
+					float ks = pow(max(dot(normal, halfVector), 0.0), uv_shininess); 
+					vec4 specular = ks * uv_specularProduct; 
+
+					if (dot(surfaceToLightDirection, normal) < 0.0) {
+						specular = vec4(0.0, 0.0, 0.0, 1.0); 
+					}
+
+					fColor = ambient + diffuse + specular; 
+					fColor.a = 1.0; 
+				}
+			}
+		</script> 
+	</head>
+
+	<!-- Can set onload function here, but I am doing so in separate js file --> 
+	<body> 
+		<canvas id="glcanvas" width="1440" height="900"> 
+			Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
+		</canvas>
+	</body> 
+</html> 
